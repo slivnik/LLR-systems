@@ -1,0 +1,47 @@
+
+%%
+
+#undef printf
+
+int yyerror (char *msg)
+{
+  printf ("SYN: %s.\n", msg);
+  exit (1);
+}
+
+int main(int argc, char *argv[])
+{
+  int ok;
+  if (argc == 1) {
+    extern FILE *yyin;
+    yyin = stdin;
+    ok = yyparse();
+  }
+  if (argc == 2) {
+    BEGCLOCK(LEXER)
+    for (int test = 0; test < TESTS; test++) {
+      extern FILE *yyin;
+      yyin = fopen(argv[1], "r");
+      while (1) {
+        int token = yylex();
+        if (token == 0) break;
+      }
+      fclose(yyin);
+    }
+    ENDCLOCK(LEXER)
+    printf ("LEXER  : %lf\n", clock_LEXER / TESTS);
+
+    BEGCLOCK(PARSER)
+    for (int test = 0; test < TESTS; test++) {
+      extern FILE *yyin;
+      yyin = fopen(argv[1], "r");
+      ok = yyparse();
+      fclose(yyin);
+    }
+    ENDCLOCK(PARSER)
+    printf ("PARSER : %lf\n", clock_PARSER / TESTS);
+  }
+  printf (ok == 0 ? "OK\n" : "SYNTAX ERROR\n");
+
+  return 0;
+}

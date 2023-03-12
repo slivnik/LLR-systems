@@ -1,0 +1,7 @@
+e -> e ADD t .
+e -> t .
+t -> t MUL f .
+t -> f .
+f -> ID .
+f -> NUM .
+f -> LPAR e RPAR .

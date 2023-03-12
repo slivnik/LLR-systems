@@ -1,0 +1,275 @@
+source -> program .
+
+# *** DECLARATIONS ***
+
+program -> program_header label_part const_part type_part var_part subprg_part compound_stmt DOT .
+
+program_header -> PROGRAM IDENTIFIER files SEMIC .
+
+files -> .
+files -> LPARENT file_names RPARENT .
+
+file_names -> IDENTIFIER .
+file_names -> file_names COMMA IDENTIFIER .
+
+label_part -> .
+label_part -> LABEL label_decls SEMIC .
+
+label_decls -> label_decl .
+label_decls -> label_decls COMMA label_decl .
+
+label_decl -> INTEGERCONST .
+
+const_part -> .
+const_part -> CONST const_decls .
+
+const_decls -> const_decl .
+const_decls -> const_decls const_decl .
+
+const_decl -> IDENTIFIER EQU constant SEMIC .
+
+type_part -> .
+type_part -> TYPE type_decls .
+
+type_decls -> type_decl .
+type_decls -> type_decls type_decl .
+
+type_decl -> IDENTIFIER EQU type SEMIC .
+
+var_part -> .
+var_part -> VAR var_decls .
+
+var_decls -> var_decl .
+var_decls -> var_decls var_decl .
+
+var_decl -> var_names COLON type SEMIC .
+
+var_names -> IDENTIFIER .
+var_names -> var_names COMMA IDENTIFIER .
+
+subprg_part -> .
+subprg_part -> subprg_decls .
+
+subprg_decls -> subprg_decl .
+subprg_decls -> subprg_decls subprg_decl .
+
+subprg_decl -> procedure_header label_part const_part type_part var_part subprg_part compound_stmt SEMIC .
+subprg_decl -> procedure_header EXTERNAL SEMIC .
+subprg_decl -> procedure_header FORWARD SEMIC .
+subprg_decl -> function_header label_part const_part type_part var_part subprg_part compound_stmt SEMIC .
+subprg_decl -> function_header EXTERNAL SEMIC .
+subprg_decl -> function_header FORWARD SEMIC .
+
+procedure_header -> PROCEDURE IDENTIFIER par_part SEMIC .
+
+function_header -> FUNCTION IDENTIFIER par_part COLON type SEMIC .
+
+par_part -> .
+par_part -> LPARENT par_decls RPARENT .
+
+par_decls -> par_decl .
+par_decls -> par_decls SEMIC par_decl .
+
+par_decl -> pars COLON type .
+par_decl -> VAR pars COLON type .
+par_decl -> PROCEDURE IDENTIFIER par_part .
+par_decl -> FUNCTION IDENTIFIER par_part COLON type .
+
+pars -> IDENTIFIER .
+pars -> pars COMMA IDENTIFIER .
+
+# *** STATEMENTS ***
+
+labeled_stmts -> labeled_stmt .
+labeled_stmts -> labeled_stmts SEMIC labeled_stmt .
+
+labeled_stmt -> .
+labeled_stmt -> stmt .
+labeled_stmt -> INTEGERCONST COLON .
+labeled_stmt -> INTEGERCONST COLON stmt .
+
+stmt -> assign_stmt .
+stmt -> case_stmt .
+stmt -> compound_stmt .
+stmt -> for_stmt .
+stmt -> goto_stmt .
+stmt -> if_stmt .
+stmt -> proc_stmt .
+stmt -> repeat_stmt .
+stmt -> while_stmt .
+stmt -> with_stmt .
+
+assign_stmt -> var ASSIGN expr .
+
+case_stmt -> CASE expr OF case_branches END .
+
+case_branches -> case_branch .
+case_branches -> case_branches SEMIC case_branch .
+
+case_branch -> .
+case_branch -> exprs COLON labeled_stmt . 
+
+compound_stmt -> BEGIN labeled_stmts END .
+
+for_stmt -> FOR IDENTIFIER ASSIGN expr TO expr DO labeled_stmt .
+for_stmt -> FOR IDENTIFIER ASSIGN expr DOWNTO expr DO labeled_stmt .
+for_stmt -> FOR IDENTIFIER ASSIGN expr TO expr STEP expr DO labeled_stmt .
+for_stmt -> FOR IDENTIFIER ASSIGN expr DOWNTO expr STEP expr DO labeled_stmt .
+
+goto_stmt -> GOTO INTEGERCONST .
+
+if_stmt -> IF expr THEN labeled_stmt .
+if_stmt -> IF expr THEN labeled_stmt ELSE labeled_stmt .
+
+proc_stmt -> IDENTIFIER .
+proc_stmt -> IDENTIFIER LPARENT args RPARENT .
+
+repeat_stmt -> REPEAT labeled_stmts UNTIL expr .
+
+while_stmt -> WHILE expr DO labeled_stmt .
+
+with_stmt -> WITH vars DO labeled_stmt .
+
+vars -> var .
+vars -> vars COMMA var .
+
+var -> IDENTIFIER .
+var -> var LBRACKET exprs RBRACKET .
+var -> var DOT IDENTIFIER .
+var -> var PTR .
+
+# *** EXPRESSIONS ***
+
+exprs -> expr .
+exprs -> exprs COMMA expr .
+
+expr -> rel_expr .
+
+rel_expr -> add_expr .
+rel_expr -> add_expr EQU add_expr .
+rel_expr -> add_expr NEQ add_expr .
+rel_expr -> add_expr LTH add_expr .
+rel_expr -> add_expr GTH add_expr .
+rel_expr -> add_expr LEQ add_expr .
+rel_expr -> add_expr GEQ add_expr .
+rel_expr -> add_expr IN add_expr .
+
+add_expr -> mul_expr .
+add_expr -> add_expr ADD mul_expr .
+add_expr -> add_expr SUB mul_expr .
+add_expr -> add_expr OR mul_expr .
+
+mul_expr -> pfx_expr .
+mul_expr -> mul_expr MUL pfx_expr .
+mul_expr -> mul_expr DIV pfx_expr .
+mul_expr -> mul_expr IDIV pfx_expr .
+mul_expr -> mul_expr IMOD pfx_expr .
+mul_expr -> mul_expr AND pfx_expr .
+
+pfx_expr -> sfx_expr .
+pfx_expr -> ADD sfx_expr .
+pfx_expr -> SUB sfx_expr .
+pfx_expr -> NOT sfx_expr .
+pfx_expr -> PTR sfx_expr .
+
+sfx_expr -> atom_expr .
+sfx_expr -> sfx_expr LBRACKET exprs RBRACKET .
+sfx_expr -> sfx_expr DOT IDENTIFIER .
+sfx_expr -> sfx_expr PTR .
+
+atom_expr -> STRINGCONST .
+atom_expr -> REALCONST .
+atom_expr -> INTEGERCONST .
+atom_expr -> BOOLEANCONST .
+atom_expr -> NIL .
+atom_expr -> LPARENT expr RPARENT .
+atom_expr -> IDENTIFIER .
+atom_expr -> IDENTIFIER LPARENT args RPARENT .
+
+args -> arg .
+args -> args COMMA arg .
+
+arg -> expr .
+arg -> expr COLON INTEGERCONST .
+arg -> expr COLON INTEGERCONST COLON INTEGERCONST .
+
+constants -> constant .
+constants -> constants COMMA constant .
+
+constant -> unsigned_constant .
+constant -> ADD unsigned_constant .
+constant -> SUB unsigned_constant .
+
+unsigned_constant -> STRINGCONST .
+unsigned_constant -> REALCONST .
+unsigned_constant -> INTEGERCONST .
+unsigned_constant -> BOOLEANCONST .
+unsigned_constant -> IDENTIFIER .
+
+# *** TYPES ***
+
+type -> simple_type .
+type -> pointer_type .
+type -> struct_type .
+
+simple_type -> atom_type .
+simple_type -> named_type .
+simple_type -> enum_type .
+simple_type -> subrange_type .
+
+atom_type -> CHAR .
+atom_type -> REAL .
+atom_type -> INTEGER .
+atom_type -> BOOLEAN .
+
+named_type -> IDENTIFIER .
+
+enum_type -> LPARENT enums RPARENT .
+
+enums -> IDENTIFIER .
+enums -> enums COMMA IDENTIFIER .
+
+subrange_type -> constant INTERVAL constant .
+
+pointer_type -> PTR IDENTIFIER .
+
+struct_type -> array_type .
+struct_type -> file_type .
+struct_type -> set_type .
+struct_type -> record_type .
+struct_type -> PACKED array_type .
+struct_type -> PACKED file_type .
+struct_type -> PACKED set_type .
+struct_type -> PACKED record_type .
+
+array_type -> ARRAY LBRACKET simple_types RBRACKET OF type .
+
+simple_types -> simple_type .
+simple_types -> simple_types COMMA simple_type .
+
+file_type -> FILE OF type .
+
+set_type -> SET OF simple_type .
+
+record_type -> RECORD rec_fields END .
+
+rec_fields -> .
+rec_fields -> CASE atom_type OF rec_case_branches .
+rec_fields -> CASE IDENTIFIER OF rec_case_branches .
+rec_fields -> CASE IDENTIFIER COLON atom_type OF rec_case_branches .
+rec_fields -> CASE IDENTIFIER COLON IDENTIFIER OF rec_case_branches .
+rec_fields -> rec_comp .
+rec_fields -> rec_comp SEMIC rec_fields .
+
+rec_comp -> SEMIC .
+rec_comp -> comps COLON type .
+
+comps -> IDENTIFIER .
+comps -> comps COMMA IDENTIFIER .
+
+rec_case_branches -> .
+rec_case_branches -> rec_case_branch .
+rec_case_branches -> rec_case_branch SEMIC rec_case_branches .
+
+rec_case_branch -> SEMIC .
+rec_case_branch -> constants COLON LPARENT rec_fields RPARENT .
